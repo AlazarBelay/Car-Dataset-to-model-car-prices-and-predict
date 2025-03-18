@@ -8,16 +8,6 @@ output:
 version: 1
 ---
 
-# 0. Instructions 
-
-*1. Remove the (italicised) guidance text but keep the section headings.*  
-*2. Add as many chunks of R code as required.*  
-*3. Where relevant summarise your answer to a section at the top of the section then add descriptions of your analysis plans and explanations of your code and findings. Please be detailed and where you have made choices explain the rationale for them. Avoid including any generic definitions.*  
-*4. Write your report using RMarkdown.  For guidance see a [helpful blog](https://www.dataquest.io/blog/r-markdown-guide-cheatsheet/#tve-jump-17333da0719) or use the R Markdown cheatsheet which can be accessed from within RStudio by selecting `Help > Cheatsheets > R Markdown Cheat Sheet`.*  
-*5. Your report should be clearly and professionally presented with appropriate use of cited external sources You report should respect the word counts in each section. (5 marks)*  
-*6. It should also be easy to understand, with well-documented code following the principles of literate programming. (5 marks)*
-
-
 we will start with loading our essential libraries 
 ```{r}
 # Add code here to load all the required libraries with `library()`.  
@@ -40,7 +30,7 @@ we will start with loading our essential libraries
  
 *A description of the data set provided, its contents and which subset you should select is documented in the assessment brief at CS5801-Assessment Brief Templ ate 2023-24.pdf*  
 
-*Use R code to correctly select the subset of data allocated. (5 marks)*  
+*Use R code to correctly select the subset of data allocated.*  
 we will be loading the used car dataset for our particular student ID Number 
 ```{r}
 # Only change the value for SID 
@@ -61,7 +51,7 @@ View(CarDF)
 
 ## 1.2 Data quality analysis plan
  
-*Provide a description of a comprehensive plan to assess the quality of this data. Include all variables/columns (5 marks) from the data set. (Max 200 words)*
+*Could you provide a description of a comprehensive plan to assess the quality of this data? *
 
 We have been given a dataset of Used cars, which contains a detail of what brand the car is, the year of the car with the mileage, engine size, transmission, fuel, drivetrain, minimum fuel efficiency, maximum fuel efficiency if it has any damage, number of owners, navigation system, third-row seat, heated seat, and price which we have loaded accordingly to our student ID which contains 410 observations and 16 variables with a data character and numeric, we will be analysing the data deepening on the variables in terms of the year, Milage, Price we will be checking if there is any missing or incorrect entry. Also, we will check that all the values are within a valid range. we will analyse the brand to see if there is any unique name or missing values. we will be checking if there is any missing value. Depending on the missing values we have, we will apply the best way to handle our data in the appropriate manner. Then, we will visualise we will then statistically outline the numeric variables. the next step will be the data consistency check, which will check a specific variable for logical consistency.
 so our data quality analysis plan will have the following steps
@@ -86,13 +76,13 @@ When we see the summary of the data, some of the data hasn't been interpreted co
 To fix the interpretation problem, we have changed 7 of the variables into a factor. 
 ```{r}
 CarDF <- CarDF %>%
-  mutate_at(vars( first_owner,automatic_transmission,damaged, navigation_system, bluetooth, third_row_seating, heated_seats), as.factor)
+  mutate_at(vars( first_owner,automatic_transmission,damaged, navigation_system, Bluetooth, third_row_seating, heated_seats), as.factor)
 ```
 
 
 ## 1.3 Data quality analysis findings
 
-*Provide a full implementation of your data quality plan from (1.2) Include all variables/columns from the data set and  (5 marks).(Max 100 words)*
+*Provide a full implementation of your data quality plan.*
 
 We will start by looking to see if there is any missing value in the dataset.
 
@@ -157,7 +147,7 @@ Data consistency looks at straight figures uncovered aberrations in expected arr
  
 ## 1.4 Data cleaning  
  
-*List and explain all the data quality issues found in 1.3 (5 marks)  NB even if no data quality issues are identified you should still check and report. Justify and document the way you have addressed each of the issues found (if any) (5 marks). (Max 200 words)*
+*List and explain all the data quality issues found in 1.3   NB even if no data quality issues are identified you should still check and report. Justify and document the way you have addressed each of the issues found (if any)*
 
 as explained in 1.3 the main quality issues found on the given dataset was the missing values in the specific characters and we have found that there are 149 NA values in the whole dataset which is specifically mentioned in 1.3 on how much for each variable is missing.
 
@@ -194,7 +184,7 @@ sum(is.na(CarDF))
 
 ## 2.1 EDA plan
 
-*Outline a suitable plan to explore, describe and visualise your data. This plan should include appropriate summary statistics (uni- and multi-variate) and visualisations. The plan should also outline how you plan to explore the data with respect to the dependent variables  (5 marks) (Max 200 words)*
+*Outline a suitable plan to explore, describe and visualise your data. This plan should include appropriate summary statistics (uni- and multi-variate) and visualisations. The plan should also outline how you plan to explore the data with respect to the dependent variables *
 
 In an EDA plan, we have a significant capability, connection capability and we will picture the information to get a clearer perspective on our information conveyance and we will have a graphical examination to be precise on our information set.in the cleaning system of the information we have prepared our information for the accompanying processes as we have supplanted all the NA values by omitting them due to the nature of our data volatility so for our explanatory data analysis we will be taking the following steps:-
 Uni-variate analysis 
@@ -213,7 +203,7 @@ the two things we will mainly be looking at are the central tendency and the spr
 
 ## 2.2 EDA execution   
 
-*Undertake the data exploration plan outlined in 2.1 (5 marks) (Max 100 words)*
+*Undertake the data exploration plan outlined in 2.1 *
 
 
 
@@ -321,12 +311,12 @@ we can see that we have a positive correlation between most of the pair variable
 ## 2.3 EDA summary of results
 
 
-*Provide a concise summary of your findings (5 marks) (Max 300 words)*
+*Provide a concise summary of your findings *
 The EDA revealed a few basic bits of knowledge. year and mileage exhibited a right-slanted circulation, proposing a gathering of commonly more exceptional cars with lower mileage. Solid positive correlations were recognized by car age and disintegration, while explicit highlights, like engine power, showed a positive effect on valuing. The categorical variable analysis displayed renowned car makes and models. These discoveries lay the groundwork for developing critical models that get the complexities of trade-in vehicle valuing.
 
 ## 2.4 Additional insights and issues
 
-*Highlight potential further issues or insights uncovered in 2.2.  This might include follow up to findings from your initial EDA.  We accept that the boundary between 2.2 and 2.3 is somewhat arbitrary so use your judgement and maximise good structure and readability. (5 marks) (Max 200 words)*
+*Highlight potential further issues or insights uncovered in 2.2.  This might include follow up to findings from your initial EDA.  We accept that the boundary between 2.2 and 2.3 is somewhat arbitrary so use your judgement and maximise good structure and readability.*
 
 After conducting the initial Exploratory Data Analysis (EDA), some more insights and potential issues have emerged. While examining the dataset (2.2), it was observed that certain variables had outliers or extreme values, which could impact the overall distribution and potentially influence subsequent analyses. Moreover, some variables might exhibit high collinearity, which could complicate the interpretation of their individual contributions to the model. Additionally, specific trends or patterns that require further investigation or refinement of the analytical approach may have been identified. Furthermore, missing data or inconsistencies in certain variables could be uncovered, which would require careful handling or imputation strategies to ensure the robustness of the analysis. Resolving these potential issues, conducting deeper exploratory analyses, and refining the modelling strategy based on these findings would enhance the overall reliability and validity of subsequent analyses.
 
@@ -335,12 +325,12 @@ After conducting the initial Exploratory Data Analysis (EDA), some more insights
 
 ## 3.1 Explain your analysis plan
 
-*The aim of the analysis is to model used car prices. Outline and justify an analysis plan to address the aim that incorporates/references any findings from the data cleaning (1.4) and EDA (2.3, 2.4)  (5 marks). (Max 200 words)*
+*the analysis aims to model used car prices. Outline and justify an analysis plan to address the aim that incorporates/references any findings from the data cleaning (1.4) and EDA (2.3, 2.4)*
 
-The analysis plan for modeling utilized car costs originates from a thorough appraisal of the dataset through data cleaning and exploratory data analysis (EDA). Following data subset determination in light of understudy IDs, the plan leverages bits of knowledge acquired during data cleaning and EDA to illuminate the modeling technique. Informed by the data quality analysis, factors exhibiting huge relationships and enticing patterns during EDA have to  be viewed in the modeling process (Banga et al., 2022). Given the hope to anticipate utilized car costs, accentuation has to  be placed on factors major areas of strength for exhibiting with the dependent variable. This guarantees that the model catches the main factors affecting car costs. Factors recognized as pressing during the data cleaning stage have to  be combined, tending to any missing qualities or exceptions in a manner reliable with the overall procedure. The analysis plan recognizes the multifaceted design of the trade-in vehicle market and the requirement for a nuanced model, taking into account both interpretability and farsighted precision.
+The analysis plan for modelling utilized car costs originates from a thorough appraisal of the dataset through data cleaning and exploratory data analysis (EDA). Following data subset determination in light of understudy IDs, the plan leverages bits of knowledge acquired during data cleaning and EDA to illuminate the modelling technique. Informed by the data quality analysis, factors exhibiting huge relationships and enticing patterns during EDA have to  be viewed in the modelling process (Banga et al., 2022). Given the hope to anticipate utilized car costs, accentuation has to  be placed on factors major areas of strength for exhibiting with the dependent variable. This guarantees that the model catches the main factors affecting car costs. Factors recognized as pressing during the data cleaning stage have to  be combined, tending to any missing qualities or exceptions in a manner reliable with the overall procedure. The analysis plan recognizes the multifaceted design of the trade-in vehicle market and the requirement for a nuanced model, taking into account both interpretability and farsighted precision.
 
 ## 3.2 Build a model for car price
-*Use R to build a suitable model to model used car prices on your data (dependent variable is price) (5 marks). (Max 100 words)*  
+*Use R to build a suitable model to model used car prices on your data (dependent variable is price)*  
 *NB Submissions where suitable models do not have good fit due to the nature of the data will not be penalised.*
 
 
@@ -361,7 +351,7 @@ The linear regression model used for predicting the prices of used cars has show
 
 ## 3.3 Critique model using relevant diagnostics
 
-*Offer an interpretation of the model, goodness of fit and graphical diagnostics (5 marks) for the model built in 3.2. Explain any potential weaknesses (5 marks). (Max 200 words)*
+*Offer an interpretation of the model, goodness of fit and graphical diagnostics (5 marks) for the model built in 3.2. Explain any potential weaknesses*
 
 ```{r}
 # Goodness of Fit Metrics
@@ -385,7 +375,7 @@ The meaning of downright factors, like the car's brand, is addressed through squ
 
 ## 3.4 Suggest and implement improvements to your model
 
-*Based on the findings in 3.2 and 3.3 articulate and include one possible alternative approach to address the model weaknesses articulated in 3.3. Explain which model (from the ones in 3.2 and 3.4) you propose and why (5 marks). (Max 200 words)*
+*Based on the findings in 3.2 and 3.3 articulate and include one possible alternative approach to address the model weaknesses articulated in 3.3. Explain which model (from the ones in 3.2 and 3.4) you propose and why *
 Expanding on the assessment, ideas for model improvement are proposed. Anticipated elective methodologies, for example, examining non-linear changes for explicit factors or incorporating participation terms, are thought of. The elective technique picked depends on tending to the recognized shortcomings and intending to work on the model's judicious execution like our variables don't have evenly distributed data and as the cars are from deference manufactures and there are different factors affecting them. As an alternative approach the polynomial regression  support for the chosen lies in its ability to get non-linear connections or record explicit subtleties in the data. This guarantees a vigorous and versatile model that better lines up with the intricacies characteristic in predicting utilized car costs. The execution of these enhancements adds to a more refined and exact model, offering overhauled bits of knowledge into the factors influencing the market worth of pre-owned vehicles.
 
 
@@ -393,13 +383,12 @@ Expanding on the assessment, ideas for model improvement are proposed. Anticipat
 
 ## 4.1 Model the likelihood of a car being sold by the first owner (using the first_owner variable provided).
 
-*The aim of the analysis is to model whether a car is being sold by the first owner or not. (i.e., involving the binary target attribute).* 
+*the analysis aims to model whether a car is being sold by the first owner or not. (i.e., involving the binary target attribute).* 
 *Provide a plan of analysis based on relevant EDA for this attribute. Execute the plan and address any weaknesses of the model and explore methods to improve it (10 marks).* 
-*Justify and propose one model. Describe, explain and critique it (10 marks).*
-*(Max 500 words)*
+*Justify and propose one model. Describe, explain and critique it 
 *NB Submissions where suitable models do not have good fit due to the nature of the data will not be penalised.* 
 
-During the EDA, key factors could really impact whether a car is sold by its most memorable owner. These may integrate factors like the car's age, mileage, brand, and other pertinent characteristics. The analysis plan includes using this understanding to illuminate the determination regarding indicator factors for our calculated regression model. Taking into account both mathematical and straight-out highlights means making a hearty model that catches the subtleties influencing possession changes. Executing the calculated regression model includes fitting the model to the chosen subset of data. The twofold idea of the dependent variable, showing whether a car is sold by the main owner (1) or not (0), lines up with the strategic regression framework.
+During the EDA, key factors could impact whether a car is sold by its most memorable owner. These may integrate factors like the car's age, mileage, brand, and other pertinent characteristics. The analysis plan includes using this understanding to illuminate the determination regarding indicator factors for our calculated regression model. Taking into account both mathematical and straight-out highlights means making a hearty model that catches the subtleties influencing possession changes. Executing the calculated regression model includes fitting the model to the chosen subset of data. The twofold idea of the dependent variable, showing whether a car is sold by the main owner (1) or not (0), lines up with the strategic regression framework.
 
 ```{r}
 Car.glm<-glm(CarDF$first_owner~ .,data = CarDF, family = "binomial")
