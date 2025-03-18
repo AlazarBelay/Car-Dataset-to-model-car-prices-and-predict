@@ -1,0 +1,428 @@
+---
+title: "CS5801 Coursework Template Proforma"
+author: "student-id"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  pdf_document: default
+  html_notebook: default
+version: 1
+---
+
+# 0. Instructions 
+
+*1. Remove the (italicised) guidance text but keep the section headings.*  
+*2. Add as many chunks of R code as required.*  
+*3. Where relevant summarise your answer to a section at the top of the section then add descriptions of your analysis plans and explanations of your code and findings. Please be detailed and where you have made choices explain the rationale for them. Avoid including any generic definitions.*  
+*4. Write your report using RMarkdown.  For guidance see a [helpful blog](https://www.dataquest.io/blog/r-markdown-guide-cheatsheet/#tve-jump-17333da0719) or use the R Markdown cheatsheet which can be accessed from within RStudio by selecting `Help > Cheatsheets > R Markdown Cheat Sheet`.*  
+*5. Your report should be clearly and professionally presented with appropriate use of cited external sources You report should respect the word counts in each section. (5 marks)*  
+*6. It should also be easy to understand, with well-documented code following the principles of literate programming. (5 marks)*
+
+
+we will start with loading our essential libraries 
+```{r}
+# Add code here to load all the required libraries with `library()`.  
+# Do not include any `install.package()` for any required packages in this rmd file.
+
+# Load Analysis Libraries
+  #library(dplyr)
+  library(tidyr)
+  library(ggplot2)
+  #library(validate)
+  library(dplyr)
+  library(plotly)
+
+```
+
+
+# 1. Organise and clean the data
+
+## 1.1 Subset the data into the specific dataset allocated
+ 
+*A description of the data set provided, its contents and which subset you should select is documented in the assessment brief at CS5801-Assessment Brief Templ ate 2023-24.pdf*  
+
+*Use R code to correctly select the subset of data allocated. (5 marks)*  
+we will be loading the used car dataset for our particular student ID Number 
+```{r}
+# Only change the value for SID 
+# Assign your student id into the variable SID, for example:
+SID <- 2289221                  # This is  your actual ID
+SIDoffset <- (SID %% 50) + 1    # Your SID mod 50 + 1
+
+load("car-analysis-data.Rda")
+# Now subset the car data set
+# Pick every 50th observation starting from your offset
+# Put into your data frame named mydf (you can rename it)
+CarDF <- cars.analysis[seq(from=SIDoffset,to=nrow(cars.analysis),by=50),]
+```
+then we will view what data we have 
+```{r}
+View(CarDF)
+```
+
+## 1.2 Data quality analysis plan
+ 
+*Provide a description of a comprehensive plan to assess the quality of this data. Include all variables/columns (5 marks) from the data set. (Max 200 words)*
+
+We have been given a dataset of Used cars, which contains a detail of what brand the car is, the year of the car with the mileage, engine size, transmission, fuel, drivetrain, minimum fuel efficiency, maximum fuel efficiency if it has any damage, number of owners, navigation system, third-row seat, heated seat, and price which we have loaded accordingly to our student ID which contains 410 observations and 16 variables with a data character and numeric, we will be analysing the data deepening on the variables in terms of the year, Milage, Price we will be checking if there is any missing or incorrect entry. Also, we will check that all the values are within a valid range. we will analyse the brand to see if there is any unique name or missing values. we will be checking if there is any missing value. Depending on the missing values we have, we will apply the best way to handle our data in the appropriate manner. Then, we will visualise we will then statistically outline the numeric variables. the next step will be the data consistency check, which will check a specific variable for logical consistency.
+so our data quality analysis plan will have the following steps
+ 1. Check if there are any missing values in the dataset.
+ 2. Looking if there are any outliners for our datasets 
+ 3. Checking for any unique values in the dataset for non-categorical variables 
+ 4. We will check the Data Consistency for categorical variables  
+ 
+```{r}
+str(CarDF)
+```
+```{r}
+head(CarDF)
+```
+we explore the dataset given. This shows us the sample data from the dataset that has been given, which has a description of 6*16. It obviously shows that our data needs cleaning because we have an NA value in the engine size variable. so we will need to handle the missing value in the data cleaning section.
+
+```{r}
+summary(CarDF)
+```
+When we see the summary of the data, some of the data hasn't been interpreted correctly, so we need to fix (e.g. first owners as a factor but read as a numeric variable with a value of 0 and 1, which represents yes and no so we need to change it to a factor) and we have six more variables with similar interpretation problem.
+
+To fix the interpretation problem, we have changed 7 of the variables into a factor. 
+```{r}
+CarDF <- CarDF %>%
+  mutate_at(vars( first_owner,automatic_transmission,damaged, navigation_system, bluetooth, third_row_seating, heated_seats), as.factor)
+```
+
+
+## 1.3 Data quality analysis findings
+
+*Provide a full implementation of your data quality plan from (1.2) Include all variables/columns from the data set and  (5 marks).(Max 100 words)*
+
+We will start by looking to see if there is any missing value in the dataset.
+
+```{r}
+1# Missing Values
+missing_values <- sapply(CarDF, function(x) sum(is.na(x)))
+print("Missing Values:")
+print(missing_values)
+
+```
+
+we can see that there are 149 missing values in the dataset as shown above we have seen that there are 17 missing values in the engine_size variable, 58 min_mpg ,58 max_mpg, 6 damaged , 10 in first_owner this shows us that our data needs to cleaned accordingly.
+
+```{r}
+2# Outliers
+numerical_variables <- sapply(CarDF, is.numeric)
+boxplot_data <- CarDF[, numerical_variables]
+num_plots <- sum(numerical_variables)
+num_rows <- 2
+num_cols <- ceiling(num_plots / num_rows)
+par(mfrow = c(num_rows, num_cols))
+par(mfrow = c(1, 1))
+
+
+```
+
+
+```{r}
+ for (i in 1:num_plots) {
+  boxplot(boxplot_data[, i], main = names(boxplot_data)[i], 
+          ylab = "Values", outline = TRUE, col = "lightblue", border = "black")
+}
+par(mfrow = c(1, 1))
+```
+after checking the missing values above, we checked the outlines for each variable in our dataset. Directly following the execution of the data quality analysis plan, two or three key disclosures have arisen. The assessment of missing characteristics uncovered that specific variables show data openings, requiring additional thought during the cleaning system. Exceptions were perceived in numerical elements, showing potential oddities that could impact the accuracy of quantifiable appraisals.
+
+```{r}
+3# Unique Values
+non_categorical_variables <- sapply(CarDF, function(x) !is.factor(x) & !is.character(x))
+unique_values_non_cat <- lapply(CarDF[, non_categorical_variables], function(x) unique(x))
+print("Unique Values (Non-Categorical Variables):")
+print(unique_values_non_cat)
+```
+
+
+```{r}
+4# Data Consistency 
+categorical_variables <- sapply(CarDF, function(x) is.factor(x) | is.character(x))
+unique_values <- lapply(CarDF[, categorical_variables], function(x) unique(x))
+print("Unique Values:")
+print(unique_values)
+
+
+
+```
+Data consistency looks at straight figures uncovered aberrations in expected arrangements, proposing likely data passage messes up. Scatterings of numerical variables were bankrupted, giving insights into the spread and state of the data.
+
+
+
+
+
+ 
+## 1.4 Data cleaning  
+ 
+*List and explain all the data quality issues found in 1.3 (5 marks)  NB even if no data quality issues are identified you should still check and report. Justify and document the way you have addressed each of the issues found (if any) (5 marks). (Max 200 words)*
+
+as explained in 1.3 the main quality issues found on the given dataset was the missing values in the specific characters and we have found that there are 149 NA values in the whole dataset which is specifically mentioned in 1.3 on how much for each variable is missing.
+
+
+
+
+```{r}
+sum(is.na(CarDF))
+```
+we firstly calculated the total number of the of the missing values which is 149 and then we will be continuing to omit the missing value for all numeric variables. 
+
+```{r}
+# removing  missing values with 
+CarDF <- na.omit(CarDF)
+
+```
+
+After we confirmed that the missing values are the engine_size and first_owner we removed the missing values from the first_owner variable cause it is our dependent variable and because of the nature of our dataset, we have a lot of different brands of cars which will make it hard to use other cleaning methods such as imputation cause cars can be affected by many factors and we can't use another cars variable value for the other one. I finally viewed my updated dataset and checked again if there was any missing value.
+
+```{r}
+head(CarDF)
+```
+
+
+```{r}
+# checking the cleened data if it has any missing values 
+sum(is.na(CarDF))
+```
+ Finaly we checked again if there is any missing value on our cleaned dataset.
+
+
+
+# 2. Exploratory Data Analysis (EDA)
+
+## 2.1 EDA plan
+
+*Outline a suitable plan to explore, describe and visualise your data. This plan should include appropriate summary statistics (uni- and multi-variate) and visualisations. The plan should also outline how you plan to explore the data with respect to the dependent variables  (5 marks) (Max 200 words)*
+
+In an EDA plan, we have a significant capability, connection capability and we will picture the information to get a clearer perspective on our information conveyance and we will have a graphical examination to be precise on our information set.in the cleaning system of the information we have prepared our information for the accompanying processes as we have supplanted all the NA values by omitting them due to the nature of our data volatility so for our explanatory data analysis we will be taking the following steps:-
+Uni-variate analysis 
+1 we will be descriptive statistics to summarize our numeric values such as price , mileage, engine size 
+
+2 then we will try to visualize the above numeric variables 
+
+3.we will then explore the frequency of the categorical variables 
+
+Bi-variate analysis
+
+4. we will check the the correlation analysis 
+
+the two things we will mainly be looking at are the central tendency and the spread
+
+
+## 2.2 EDA execution   
+
+*Undertake the data exploration plan outlined in 2.1 (5 marks) (Max 100 words)*
+
+
+
+```{r}
+1 # Descriptive Statistics
+summary_stats <- summary(CarDF)
+print(summary_stats)
+
+```
+
+```{r}
+2 # Visualization of Numerical Variables
+
+hist(CarDF$price ,col = "green", main = "Histogram of Car Prices", xlab = "Price")
+```
+1. as shown in the first histogram of cars price we can observe that its evenly distributed and we can see that around 25000-30000 is the highest frequency
+```{r}
+hist(CarDF$mileage, col= "yellow", main = "Histogram of Mileage", xlab = "Mileage")
+```
+2.on the mileage Histogram we can see that our data is not evenly distributed we can see that there is a decremented graph.
+```{r}
+hist(CarDF$engine_size, col="red",main = "Histogram of Engine Size", xlab = "Engine Size")
+```
+3.the engine size has uneven graph.
+```{r}
+numeric_variables <- sapply(CarDF, is.numeric)
+
+
+```
+
+```{r}
+3.# Categorical Variable Analysis
+
+ggplot(CarDF, aes(x = brand) )+
+  
+   geom_bar() +
+  coord_flip() +
+   
+  labs(title = "Count Plot of Car brands")
+
+   
+```
+
+
+
+
+```{r}
+
+Degree_counts <- table(CarDF$automatic_transmission)
+print(Degree_counts)
+```
+```{r}
+# Calculate percentages
+Degree_percentages <- round(prop.table(Degree_counts) * 100, 1)
+```
+
+```{r}
+# Create a pie chart with percentages
+pie(Degree_counts, labels = paste(names(Degree_counts), "\n", Degree_percentages, "%"), 
+    main = "Distribution of cars with  automatic_transmission ", col = c("green", "lightblue"))
+
+```
+
+we can see that we have 90.4% automatic transmission and 9.6% manual transmission. 
+
+# bi-variate analysis  
+we are visualizing the scattered plot of the numerical value
+```{r}
+plot(CarDF$year, CarDF$price, main="Cars year and Price ", xlab="year", ylab="price")+geom_line()
+
+
+```
+a scattered plot graph of cars price per year and each point represents of a car of the dataset.we can see that the newer cars have a higher price.we have got some outliers.where we conclude our graph there is a positive correlation between car price and year.
+
+```{r}
+plot(CarDF$mileage, CarDF$price, main="Cars Mileage and Price ", xlab="mileage", ylab="price")+geom_line()
+
+```
+we can see that our graph has negative trend where there is an a relation ship between mileage and price which is when mileage increases the price decreases.which show that there is a -ve correlation  between mileage and price 
+```{r}
+plot(CarDF$year, CarDF$price, main="Cars year and mileage ", xlab="year", ylab="`mileage`")+geom_line()
+
+```
+the graph show that the year and mileage have a positive correlation and we can see that back in early 1995 the mileage of the cars was low but in recent years the mileage has increased .
+
+
+```{r}
+# Bi-variate analysis on the dependent variable and year
+ggplot(CarDF, aes(x=first_owner, y=year)) + geom_boxplot() + ggtitle("Boxplot of year vs first owner ") + theme_classic()
+```
+
+
+```{r}
+# Correlation Analysis
+# Ensure only numeric variables are included in the correlation analysis
+numeric_variables <- sapply(CarDF, is.numeric)
+correlation_matrix <- cor(CarDF[, numeric_variables], use = "complete.obs")
+heatmap(correlation_matrix, symm = TRUE, main = "Correlation Heatmap")
+```
+we can see that we have a positive correlation between most of the pair variables. as seen on the outer most parts of the square variable have weaker relationship.
+
+
+
+
+## 2.3 EDA summary of results
+
+
+*Provide a concise summary of your findings (5 marks) (Max 300 words)*
+The EDA revealed a few basic bits of knowledge. year and mileage exhibited a right-slanted circulation, proposing a gathering of commonly more exceptional cars with lower mileage. Solid positive correlations were recognized by car age and disintegration, while explicit highlights, like engine power, showed a positive effect on valuing. The categorical variable analysis displayed renowned car makes and models. These discoveries lay the groundwork for developing critical models that get the complexities of trade-in vehicle valuing.
+
+## 2.4 Additional insights and issues
+
+*Highlight potential further issues or insights uncovered in 2.2.  This might include follow up to findings from your initial EDA.  We accept that the boundary between 2.2 and 2.3 is somewhat arbitrary so use your judgement and maximise good structure and readability. (5 marks) (Max 200 words)*
+
+After conducting the initial Exploratory Data Analysis (EDA), some more insights and potential issues have emerged. While examining the dataset (2.2), it was observed that certain variables had outliers or extreme values, which could impact the overall distribution and potentially influence subsequent analyses. Moreover, some variables might exhibit high collinearity, which could complicate the interpretation of their individual contributions to the model. Additionally, specific trends or patterns that require further investigation or refinement of the analytical approach may have been identified. Furthermore, missing data or inconsistencies in certain variables could be uncovered, which would require careful handling or imputation strategies to ensure the robustness of the analysis. Resolving these potential issues, conducting deeper exploratory analyses, and refining the modelling strategy based on these findings would enhance the overall reliability and validity of subsequent analyses.
+
+
+# 3. Modelling
+
+## 3.1 Explain your analysis plan
+
+*The aim of the analysis is to model used car prices. Outline and justify an analysis plan to address the aim that incorporates/references any findings from the data cleaning (1.4) and EDA (2.3, 2.4)  (5 marks). (Max 200 words)*
+
+The analysis plan for modeling utilized car costs originates from a thorough appraisal of the dataset through data cleaning and exploratory data analysis (EDA). Following data subset determination in light of understudy IDs, the plan leverages bits of knowledge acquired during data cleaning and EDA to illuminate the modeling technique. Informed by the data quality analysis, factors exhibiting huge relationships and enticing patterns during EDA have to  be viewed in the modeling process (Banga et al., 2022). Given the hope to anticipate utilized car costs, accentuation has to  be placed on factors major areas of strength for exhibiting with the dependent variable. This guarantees that the model catches the main factors affecting car costs. Factors recognized as pressing during the data cleaning stage have to  be combined, tending to any missing qualities or exceptions in a manner reliable with the overall procedure. The analysis plan recognizes the multifaceted design of the trade-in vehicle market and the requirement for a nuanced model, taking into account both interpretability and farsighted precision.
+
+## 3.2 Build a model for car price
+*Use R to build a suitable model to model used car prices on your data (dependent variable is price) (5 marks). (Max 100 words)*  
+*NB Submissions where suitable models do not have good fit due to the nature of the data will not be penalised.*
+
+
+The linear regression model developed at utilized car costs includes the thought of different indicator factors. Using experiences from the analysis plan, factors seen as influential during EDA, like mileage, age of the car, and explicit brand pointers, are associated with the model (Da Poian et al., 2023). This guarantees a far-reaching portrayal of factors liable to impact car price. 
+
+```{r}
+# Linear Regression Model
+lm_model <- lm(price ~ ., data = CarDF)
+```
+
+```{r}
+# View summary
+summary(lm_model)
+```
+The linear regression model used for predicting the prices of used cars has shown strong performance. This is indicated by a high Multiple R-squared value of 82.72%, implying that the model explains a significant portion of the price variability. The Adjusted R-squared value of 80.08% reinforces the model's effectiveness, considering the number of predictors. The F-statistic of 31.32 is highly significant, confirming the overall importance of the model. The low p-value (< 2.2e-16) strengthens the statistical significance. The residual standard error of 5194 shows the average deviation of the model's predictions from actual values. Overall, these findings suggest that the model is a suitable and statistically significant tool for predicting used car prices. It provides valuable insights into the relationships between predictor variables and car prices.
+
+
+
+## 3.3 Critique model using relevant diagnostics
+
+*Offer an interpretation of the model, goodness of fit and graphical diagnostics (5 marks) for the model built in 3.2. Explain any potential weaknesses (5 marks). (Max 200 words)*
+
+```{r}
+# Goodness of Fit Metrics
+r_squared <- summary(lm_model)$r.squared
+adjusted_r_squared <- summary(lm_model)$adj.r.squared
+print(paste("R-squared:", r_squared))
+print(paste("Adjusted R-squared:", adjusted_r_squared))
+```
+```{r}
+# Diagnostics: Residual Analysis
+
+plot(lm_model)  # Residuals vs Fitted, Normal Q-Q, Scale-Location, Residuals vs Leverage
+
+
+```
+.we can see a curve Residual vs fitted graph which indicate non linearity and heteroscedasity.
+.when we look at the Q-Q plot we can see that most of the points lie mostly along the straight diagonal line but we can see some ouliers to conclude we can say that this set of data is normally distributed.
+
+The meaning of downright factors, like the car's brand, is addressed through squeezing encoding to guarantee their critical breaker into the regression model. The subsequent linear regression model plans to give a benchmark understanding of the connections between indicator factors and trade-in vehicle price.
+
+
+## 3.4 Suggest and implement improvements to your model
+
+*Based on the findings in 3.2 and 3.3 articulate and include one possible alternative approach to address the model weaknesses articulated in 3.3. Explain which model (from the ones in 3.2 and 3.4) you propose and why (5 marks). (Max 200 words)*
+Expanding on the assessment, ideas for model improvement are proposed. Anticipated elective methodologies, for example, examining non-linear changes for explicit factors or incorporating participation terms, are thought of. The elective technique picked depends on tending to the recognized shortcomings and intending to work on the model's judicious execution like our variables don't have evenly distributed data and as the cars are from deference manufactures and there are different factors affecting them. As an alternative approach the polynomial regression  support for the chosen lies in its ability to get non-linear connections or record explicit subtleties in the data. This guarantees a vigorous and versatile model that better lines up with the intricacies characteristic in predicting utilized car costs. The execution of these enhancements adds to a more refined and exact model, offering overhauled bits of knowledge into the factors influencing the market worth of pre-owned vehicles.
+
+
+# 4. Modelling another dependent variable
+
+## 4.1 Model the likelihood of a car being sold by the first owner (using the first_owner variable provided).
+
+*The aim of the analysis is to model whether a car is being sold by the first owner or not. (i.e., involving the binary target attribute).* 
+*Provide a plan of analysis based on relevant EDA for this attribute. Execute the plan and address any weaknesses of the model and explore methods to improve it (10 marks).* 
+*Justify and propose one model. Describe, explain and critique it (10 marks).*
+*(Max 500 words)*
+*NB Submissions where suitable models do not have good fit due to the nature of the data will not be penalised.* 
+
+During the EDA, key factors could really impact whether a car is sold by its most memorable owner. These may integrate factors like the car's age, mileage, brand, and other pertinent characteristics. The analysis plan includes using this understanding to illuminate the determination regarding indicator factors for our calculated regression model. Taking into account both mathematical and straight-out highlights means making a hearty model that catches the subtleties influencing possession changes. Executing the calculated regression model includes fitting the model to the chosen subset of data. The twofold idea of the dependent variable, showing whether a car is sold by the main owner (1) or not (0), lines up with the strategic regression framework.
+
+```{r}
+Car.glm<-glm(CarDF$first_owner~ .,data = CarDF, family = "binomial")
+
+
+summary(Car.glm)
+```
+The variable "first_owner" is highly statistically significant in predicting whether a used car is sold by its original owner. The model that includes this variable has a significantly better fit than the null model and a much lower residual deviance, indicating its clear superiority. Furthermore, with an impressive AIC value of 399.21, this model is unequivocally effective in explaining the data, considering both the goodness of fit and the model complexity. The inclusion of the "first_owner" variable in the model makes it highly capable of predicting the probability of used cars being sold by their initial owners, emphasizing the variable's crucial role in comprehending the sales dynamics of the dataset.
+
+```{r}
+plot(Car.glm)
+```
+
+#conclusion 
+
+The analysis of pre-owned vehicle data uncovered huge experiences in valuing determinants and deal designs. The data-cleaning process resolved issues, working on the trustworthiness of resulting examinations. Exploratory Data Analysis illuminated amazing patterns and connections among factors. Modelling utilized car price  yielded a far-reaching linear regression model, giving a foundation to estimating forecasts. These discoveries add to a nuanced comprehension of elements affecting pre-owned vehicle price, working with informed choice creation in the car market.
+
+
+
+# References  
+
+*Add any references here including references to use of GenAI. NB You can either do this manually or automatically with a `.bib` file (which then must be submitted along with your `.Rmd` file).  See the RMarkdown [documentation](https://bookdown.org/yihui/rmarkdown-cookbook/bibliography.html) for guidance.*    
+.Banga, C., Deka, A., Kilic, H., Ozturen, A. and Ozdeser, H., 2022. The role of clean energy in the development of sustainable tourism: does renewable energy use help mitigate environmental pollution? A panel data analysis. Environmental Science and Pollution Research, 29(39), pp.59363-59373.
+.Da Poian, V., Theiling, B., Clough, L., McKinney, B., Major, J., Chen, J. and Hörst, S., 2023. Exploratory data analysis (EDA) machine learning approaches for ocean world analog mass spectrometry. Frontiers in Astronomy and Space Sciences, 10, p.1134141.
+.Grammarly (2019). Grammarly. [online] Grammarly.com. Available at: https://app.grammarly.com.
+.OpenAI (2023). ChatGPT. [online] chat.openai.com. Available at: https://chat.openai.com.
